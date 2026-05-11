@@ -1,0 +1,15 @@
+vendor/
+.phpunit.result.cache
+_check_db.php
+_check_columns.php
+_setup_db.php
+_setup_test_db.php
+_migrate_v2.php
+_migrate_v3.php
+_migrate_v4.php
+_debug_uri.php
+_debug_uri.php
+_test_url.php
+_test_form_action.php
+_fix_urls.php
+_fix_urls_simple.php

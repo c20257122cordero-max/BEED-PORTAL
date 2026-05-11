@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false">
+
+    <testsuites>
+        <testsuite name="BEED Student Portal Test Suite">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Test database credentials — override via environment variables -->
+        <env name="TEST_DB_HOST" value="localhost"/>
+        <env name="TEST_DB_NAME" value="beed_portal_test"/>
+        <env name="TEST_DB_USER" value="root"/>
+        <env name="TEST_DB_PASS" value=""/>
+    </php>
+
+</phpunit>

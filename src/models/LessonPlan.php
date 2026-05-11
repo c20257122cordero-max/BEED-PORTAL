@@ -1,0 +1,311 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * LessonPlan model.
+ *
+ * Handles all database operations for the `lesson_plans` table using PDO
+ * prepared statements — never string-interpolated SQL (Requirements 7.3, 7.4).
+ *
+ * Every query that reads or mutates a lesson plan record includes a
+ * `student_id` condition to enforce per-student data isolation
+ * (Requirements 5.2, 6.1).
+ */
+class LessonPlan
+{
+    /**
+     * Columns selected in list/detail queries.
+     */
+    private const COLUMNS = 'id, student_id, title, subject, grade_level,
+        quarter, week, status,
+        date, time_allotment_minutes, learning_competency,
+        subject_matter_topic, subject_matter_references, subject_matter_materials,
+        proc_review_drill, proc_motivation, proc_presentation, proc_discussion,
+        proc_generalization, proc_application, evaluation, assignment,
+        created_at, updated_at';
+
+    /**
+     * Return all lesson plans belonging to a student, optionally filtered by a
+     * search term and/or status.
+     *
+     * @param PDO    $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int    $studentId The authenticated student's primary key.
+     * @param string $search    Optional search term; empty string returns all.
+     * @param string $status    Optional status filter (draft|for_review|submitted).
+     *
+     * @return array Array of associative-array rows; empty array if none found.
+     */
+    public static function findByStudent(
+        PDO $db,
+        int $studentId,
+        string $search = '',
+        string $status = ''
+    ): array {
+        $statusClause = $status !== '' ? ' AND status = :status' : '';
+
+        if ($search === '') {
+            $sql  = 'SELECT ' . self::COLUMNS . '
+                     FROM   lesson_plans
+                     WHERE  student_id = :student_id'
+                     . $statusClause . '
+                     ORDER  BY updated_at DESC';
+            $stmt = $db->prepare($sql);
+            $params = [':student_id' => $studentId];
+            if ($status !== '') {
+                $params[':status'] = $status;
+            }
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // --- FULLTEXT attempt ---
+        try {
+            $sql  = 'SELECT ' . self::COLUMNS . '
+                     FROM   lesson_plans
+                     WHERE  student_id = :student_id
+                       AND  MATCH(title, subject, learning_competency) AGAINST(:search IN BOOLEAN MODE)'
+                     . $statusClause . '
+                     ORDER  BY updated_at DESC';
+            $stmt = $db->prepare($sql);
+            $params = [
+                ':student_id' => $studentId,
+                ':search'     => $search,
+            ];
+            if ($status !== '') {
+                $params[':status'] = $status;
+            }
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // FULLTEXT not available — fall through to LIKE fallback.
+        }
+
+        // --- LIKE fallback ---
+        $like = '%' . $search . '%';
+        $sql  = 'SELECT ' . self::COLUMNS . '
+                 FROM   lesson_plans
+                 WHERE  student_id = :student_id
+                   AND  (title LIKE :search OR subject LIKE :search OR learning_competency LIKE :search)'
+                 . $statusClause . '
+                 ORDER  BY updated_at DESC';
+        $stmt = $db->prepare($sql);
+        $params = [
+            ':student_id' => $studentId,
+            ':search'     => $like,
+        ];
+        if ($status !== '') {
+            $params[':status'] = $status;
+        }
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Return a single lesson plan row by its primary key, scoped to the given
+     * student.
+     *
+     * @param PDO $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int $id        The lesson plan's primary key.
+     * @param int $studentId The authenticated student's primary key.
+     *
+     * @return array|null Associative array of the lesson plan row, or null.
+     */
+    public static function findById(PDO $db, int $id, int $studentId): ?array
+    {
+        $sql  = 'SELECT ' . self::COLUMNS . '
+                 FROM   lesson_plans
+                 WHERE  id = :id
+                   AND  student_id = :student_id
+                 LIMIT  1';
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':id'         => $id,
+            ':student_id' => $studentId,
+        ]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * Insert a new lesson plan record for the given student.
+     *
+     * @param PDO   $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int   $studentId The authenticated student's primary key.
+     * @param array $data      Associative array of field values from the form.
+     *
+     * @return int The new lesson plan's auto-incremented ID.
+     */
+    public static function create(PDO $db, int $studentId, array $data): int
+    {
+        $sql = 'INSERT INTO lesson_plans
+                    (student_id, title, subject, grade_level, quarter, week, status,
+                     date, time_allotment_minutes, learning_competency,
+                     subject_matter_topic, subject_matter_references,
+                     subject_matter_materials, proc_review_drill,
+                     proc_motivation, proc_presentation, proc_discussion,
+                     proc_generalization, proc_application,
+                     evaluation, assignment)
+                VALUES
+                    (:student_id, :title, :subject, :grade_level, :quarter, :week, :status,
+                     :date, :time_allotment_minutes, :learning_competency,
+                     :subject_matter_topic, :subject_matter_references,
+                     :subject_matter_materials, :proc_review_drill,
+                     :proc_motivation, :proc_presentation, :proc_discussion,
+                     :proc_generalization, :proc_application,
+                     :evaluation, :assignment)';
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':student_id'                => $studentId,
+            ':title'                     => $data['title']                    ?? null,
+            ':subject'                   => $data['subject']                  ?? null,
+            ':grade_level'               => $data['grade_level']              ?? null,
+            ':quarter'                   => isset($data['quarter']) && $data['quarter'] !== ''
+                                                ? (int) $data['quarter']
+                                                : null,
+            ':week'                      => isset($data['week']) && $data['week'] !== ''
+                                                ? (int) $data['week']
+                                                : null,
+            ':status'                    => $data['status']                   ?? 'draft',
+            ':date'                      => isset($data['date']) && $data['date'] !== ''
+                                                ? $data['date']
+                                                : null,
+            ':time_allotment_minutes'    => isset($data['time_allotment_minutes']) && $data['time_allotment_minutes'] !== ''
+                                                ? (int) $data['time_allotment_minutes']
+                                                : null,
+            ':learning_competency'       => $data['learning_competency']      ?? null,
+            ':subject_matter_topic'      => $data['subject_matter_topic']     ?? null,
+            ':subject_matter_references' => $data['subject_matter_references'] ?? null,
+            ':subject_matter_materials'  => $data['subject_matter_materials'] ?? null,
+            ':proc_review_drill'         => $data['proc_review_drill']        ?? null,
+            ':proc_motivation'           => $data['proc_motivation']          ?? null,
+            ':proc_presentation'         => $data['proc_presentation']        ?? null,
+            ':proc_discussion'           => $data['proc_discussion']          ?? null,
+            ':proc_generalization'       => $data['proc_generalization']      ?? null,
+            ':proc_application'          => $data['proc_application']         ?? null,
+            ':evaluation'                => $data['evaluation']               ?? null,
+            ':assignment'                => $data['assignment']               ?? null,
+        ]);
+
+        return (int) $db->lastInsertId();
+    }
+
+    /**
+     * Update an existing lesson plan record for the given student.
+     *
+     * @param PDO   $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int   $id        The lesson plan's primary key.
+     * @param int   $studentId The authenticated student's primary key.
+     * @param array $data      Associative array of updated field values.
+     *
+     * @return bool True if the record was updated; false otherwise.
+     */
+    public static function update(PDO $db, int $id, int $studentId, array $data): bool
+    {
+        $sql = 'UPDATE lesson_plans
+                SET    title                     = :title,
+                       subject                   = :subject,
+                       grade_level               = :grade_level,
+                       quarter                   = :quarter,
+                       week                      = :week,
+                       status                    = :status,
+                       date                      = :date,
+                       time_allotment_minutes    = :time_allotment_minutes,
+                       learning_competency       = :learning_competency,
+                       subject_matter_topic      = :subject_matter_topic,
+                       subject_matter_references = :subject_matter_references,
+                       subject_matter_materials  = :subject_matter_materials,
+                       proc_review_drill         = :proc_review_drill,
+                       proc_motivation           = :proc_motivation,
+                       proc_presentation         = :proc_presentation,
+                       proc_discussion           = :proc_discussion,
+                       proc_generalization       = :proc_generalization,
+                       proc_application          = :proc_application,
+                       evaluation                = :evaluation,
+                       assignment                = :assignment
+                WHERE  id         = :id
+                  AND  student_id = :student_id';
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':id'                        => $id,
+            ':student_id'                => $studentId,
+            ':title'                     => $data['title']                    ?? null,
+            ':subject'                   => $data['subject']                  ?? null,
+            ':grade_level'               => $data['grade_level']              ?? null,
+            ':quarter'                   => isset($data['quarter']) && $data['quarter'] !== ''
+                                                ? (int) $data['quarter']
+                                                : null,
+            ':week'                      => isset($data['week']) && $data['week'] !== ''
+                                                ? (int) $data['week']
+                                                : null,
+            ':status'                    => $data['status']                   ?? 'draft',
+            ':date'                      => isset($data['date']) && $data['date'] !== ''
+                                                ? $data['date']
+                                                : null,
+            ':time_allotment_minutes'    => isset($data['time_allotment_minutes']) && $data['time_allotment_minutes'] !== ''
+                                                ? (int) $data['time_allotment_minutes']
+                                                : null,
+            ':learning_competency'       => $data['learning_competency']      ?? null,
+            ':subject_matter_topic'      => $data['subject_matter_topic']     ?? null,
+            ':subject_matter_references' => $data['subject_matter_references'] ?? null,
+            ':subject_matter_materials'  => $data['subject_matter_materials'] ?? null,
+            ':proc_review_drill'         => $data['proc_review_drill']        ?? null,
+            ':proc_motivation'           => $data['proc_motivation']          ?? null,
+            ':proc_presentation'         => $data['proc_presentation']        ?? null,
+            ':proc_discussion'           => $data['proc_discussion']          ?? null,
+            ':proc_generalization'       => $data['proc_generalization']      ?? null,
+            ':proc_application'          => $data['proc_application']         ?? null,
+            ':evaluation'                => $data['evaluation']               ?? null,
+            ':assignment'                => $data['assignment']               ?? null,
+        ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Delete a lesson plan record (and its objectives via CASCADE) for the
+     * given student.
+     *
+     * @param PDO $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int $id        The lesson plan's primary key.
+     * @param int $studentId The authenticated student's primary key.
+     *
+     * @return bool True if the record was deleted; false otherwise.
+     */
+    public static function delete(PDO $db, int $id, int $studentId): bool
+    {
+        $sql  = 'DELETE FROM lesson_plans
+                 WHERE  id         = :id
+                   AND  student_id = :student_id';
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':id'         => $id,
+            ':student_id' => $studentId,
+        ]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Return the N most recently modified lesson plans for a student.
+     *
+     * @param PDO $db        PDO connection (ERRMODE_EXCEPTION, FETCH_ASSOC).
+     * @param int $studentId The authenticated student's primary key.
+     * @param int $limit     Maximum number of rows to return (default 5).
+     *
+     * @return array Array of associative-array rows; empty array if none found.
+     */
+    public static function recentByStudent(PDO $db, int $studentId, int $limit = 5): array
+    {
+        $sql  = 'SELECT ' . self::COLUMNS . '
+                 FROM   lesson_plans
+                 WHERE  student_id = :student_id
+                 ORDER  BY updated_at DESC
+                 LIMIT  :limit';
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':student_id', $studentId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit',      $limit,     PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
