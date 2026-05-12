@@ -4,6 +4,8 @@ RewriteEngine On
 # Allow direct access to existing files and directories (CSS, JS, images, etc.)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+# Serve landing.php directly without routing through the front controller
+RewriteCond %{REQUEST_FILENAME} !landing.php
 
 # Route everything else through the front controller
 RewriteRule ^ index.php [QSA,L]
