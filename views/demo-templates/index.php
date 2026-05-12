@@ -16,6 +16,54 @@ ob_start();
     </a>
 </div>
 
+<!-- Built-in Subject Templates -->
+<div class="mb-8">
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-6 h-6 bg-violet-100 rounded-md flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h2 class="text-sm font-semibold text-gray-700">Built-in Subject Templates</h2>
+        <span class="text-xs text-slate-400 hidden sm:inline">— Click to create a new demo pre-filled with subject-specific content</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
+        <?php
+        $builtinDemoTemplates = [
+            ['key'=>'math',    'color'=>'blue',   'label'=>'M',  'grade'=>'Grade 3', 'title'=>'Mathematics',         'desc'=>'Fractions — 4A\'s Method'],
+            ['key'=>'english', 'color'=>'green',  'label'=>'E',  'grade'=>'Grade 4', 'title'=>'English',             'desc'=>'Reading Comp. — 5E\'s'],
+            ['key'=>'filipino','color'=>'yellow', 'label'=>'F',  'grade'=>'Grade 3', 'title'=>'Filipino',            'desc'=>'Pagbabasa — 4A\'s'],
+            ['key'=>'science', 'color'=>'teal',   'label'=>'S',  'grade'=>'Grade 3', 'title'=>'Science',             'desc'=>'Living Things — 5E\'s'],
+            ['key'=>'ap',      'color'=>'orange', 'label'=>'AP', 'grade'=>'Grade 3', 'title'=>'Araling Panlipunan',  'desc'=>'Komunidad — 4A\'s'],
+            ['key'=>'mapeh',   'color'=>'pink',   'label'=>'MP', 'grade'=>'Grade 4', 'title'=>'MAPEH',               'desc'=>'Music — 5E\'s'],
+            ['key'=>'esp',     'color'=>'indigo', 'label'=>'EP', 'grade'=>'Grade 5', 'title'=>'EsP',                 'desc'=>'Pagpapahalaga — 4A\'s'],
+            ['key'=>'generic', 'color'=>'gray',   'label'=>'G',  'grade'=>'Any',     'title'=>'Generic DepEd',       'desc'=>'Standard Demo Structure'],
+        ];
+        foreach ($builtinDemoTemplates as $bt):
+        ?>
+        <a href="<?= url('/demos/create?builtin_demo=' . $bt['key']) ?>"
+           class="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md hover:border-slate-300 transition-all flex flex-col">
+            <div class="h-1 bg-<?= $bt['color'] ?>-500"></div>
+            <div class="p-3 flex items-start gap-2.5 flex-1">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-<?= $bt['color'] ?>-100 text-<?= $bt['color'] ?>-700 text-xs font-bold flex-shrink-0 group-hover:bg-<?= $bt['color'] ?>-600 group-hover:text-white transition-colors">
+                    <?= $bt['label'] ?>
+                </span>
+                <div class="min-w-0">
+                    <p class="text-xs font-semibold text-gray-800 leading-snug"><?= htmlspecialchars($bt['title']) ?></p>
+                    <p class="text-xs text-slate-400 mt-0.5"><?= htmlspecialchars($bt['desc']) ?></p>
+                    <p class="text-xs text-slate-400"><?= htmlspecialchars($bt['grade']) ?></p>
+                </div>
+            </div>
+            <div class="px-3 py-1.5 bg-slate-50 border-t border-slate-100">
+                <span class="text-xs font-medium text-<?= $bt['color'] ?>-600">Use →</span>
+            </div>
+        </a>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<div class="border-t border-slate-200 mb-6 pt-2">
+    <h2 class="text-sm font-semibold text-gray-700">My Saved Templates</h2>
+</div>
+
 <?php if ($success): ?>
     <div class="mb-5 flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3">
         <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>

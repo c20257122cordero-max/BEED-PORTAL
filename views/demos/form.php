@@ -19,14 +19,12 @@ declare(strict_types=1);
  * Requirements: 3.1, 3.3, 3.4, 3.7
  */
 
-$isEdit    = $demo !== null;
+$isEdit = $demo !== null;
 $pageTitle = $isEdit
-    ? 'Edit Demo — BEED Student Portal'
-    : 'New Demo — BEED Student Portal';
+    ? "Edit Demo — BEED Student Portal"
+    : "New Demo — BEED Student Portal";
 
-$formAction = $isEdit
-    ? url('/demos/' . (int) $demo['id'])
-    : url('/demos');
+$formAction = $isEdit ? url("/demos/" . (int) $demo["id"]) : url("/demos");
 
 /**
  * Helper: return the repopulated value for a scalar field.
@@ -36,12 +34,12 @@ $formAction = $isEdit
  */
 $val = static function (string $field) use ($old, $demo): string {
     if (isset($old[$field])) {
-        return htmlspecialchars((string) $old[$field], ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars((string) $old[$field], ENT_QUOTES, "UTF-8");
     }
     if (isset($demo[$field])) {
-        return htmlspecialchars((string) $demo[$field], ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars((string) $demo[$field], ENT_QUOTES, "UTF-8");
     }
-    return '';
+    return "";
 };
 
 /**
@@ -52,11 +50,11 @@ $val = static function (string $field) use ($old, $demo): string {
  */
 $err = static function (string $field) use ($errors): string {
     if (!empty($errors[$field])) {
-        return '<p class="mt-1 text-sm text-red-600">'
-            . htmlspecialchars((string) $errors[$field], ENT_QUOTES, 'UTF-8')
-            . '</p>';
+        return '<p class="mt-1 text-sm text-red-600">' .
+            htmlspecialchars((string) $errors[$field], ENT_QUOTES, "UTF-8") .
+            "</p>";
     }
-    return '';
+    return "";
 };
 
 /**
@@ -67,18 +65,18 @@ $err = static function (string $field) use ($errors): string {
  */
 $borderClass = static function (string $field) use ($errors): string {
     return !empty($errors[$field])
-        ? 'border-red-400 focus:ring-red-500 focus:border-red-500'
-        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500';
+        ? "border-red-400 focus:ring-red-500 focus:border-red-500"
+        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500";
 };
 
 // Determine the initial step list to render.
 // If $old contains steps (validation failure), use those; otherwise use $steps.
 $initialSteps = [];
-if (!empty($old['steps']) && is_array($old['steps'])) {
-    foreach ($old['steps'] as $s) {
+if (!empty($old["steps"]) && is_array($old["steps"])) {
+    foreach ($old["steps"] as $s) {
         $initialSteps[] = [
-            'step_number' => (int) ($s['step_number'] ?? 0),
-            'description' => (string) ($s['description'] ?? ''),
+            "step_number" => (int) ($s["step_number"] ?? 0),
+            "description" => (string) ($s["description"] ?? ""),
         ];
     }
 } elseif (!empty($steps)) {
@@ -92,19 +90,34 @@ ob_start();
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">
-            <?= $isEdit ? 'Edit Demo' : 'New Demo' ?>
+            <?= $isEdit ? "Edit Demo" : "New Demo" ?>
         </h1>
         <p class="mt-1 text-sm text-gray-500">
             <?= $isEdit
-                ? 'Update your teaching demonstration plan.'
-                : 'Create a new teaching demonstration plan.' ?>
+                ? "Update your teaching demonstration plan."
+                : "Create a new teaching demonstration plan." ?>
         </p>
     </div>
 
-    <!-- Action links (Cancel / Export / Templates) -->
-    <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+    <!-- Action links (Save as Template / My Templates / Export / Cancel) -->
+    <div class="flex items-center gap-3 flex-shrink-0 flex-wrap justify-end">
+        <button type="button" id="demo-save-as-template-btn"
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Save as Template
+        </button>
+
+        <a href="<?= url("/demo-templates") ?>"
+           class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            My Templates
+        </a>
+
         <?php if ($isEdit): ?>
-            <a href="<?= url('/demos/' . (int) $demo['id'] . '/export') ?>"
+            <a href="<?= url("/demos/" . (int) $demo["id"] . "/export") ?>"
                class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -114,19 +127,7 @@ ob_start();
             </a>
         <?php endif; ?>
 
-        <button type="button" id="demo-save-as-template-btn"
-            class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-            Save as Template
-        </button>
-
-        <a href="<?= url('/demo-templates') ?>"
-           class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10"/></svg>
-            My Templates
-        </a>
-
-        <a href="<?= url('/demos') ?>"
+        <a href="<?= url("/demos") ?>"
            class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -137,25 +138,30 @@ ob_start();
 </div>
 
 <!-- General error banner -->
-<?php if (!empty($errors['general'])): ?>
+<?php if (!empty($errors["general"])): ?>
     <div class="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
         <p class="text-sm text-red-600">
-            <?= htmlspecialchars((string) $errors['general'], ENT_QUOTES, 'UTF-8') ?>
+            <?= htmlspecialchars(
+                (string) $errors["general"],
+                ENT_QUOTES,
+                "UTF-8",
+            ) ?>
         </p>
     </div>
 <?php endif; ?>
 
 <!-- Demo form -->
-<form method="POST" action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') ?>" novalidate>
+<form method="POST" action="<?= htmlspecialchars(
+    $formAction,
+    ENT_QUOTES,
+    "UTF-8",
+) ?>" novalidate>
 
     <div class="space-y-8">
 
         <!-- ── Section 1: Basic Information ─────────────────────────────── -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="mb-5">
-                <h2 class="text-base font-semibold text-gray-700">Basic Information</h2>
-                <p class="mt-1 text-xs text-slate-400">Fill in the key details that identify this teaching demonstration.</p>
-            </div>
+            <h2 class="text-base font-semibold text-gray-700 mb-5">Basic Information</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -169,16 +175,16 @@ ob_start();
                         type="text"
                         id="title"
                         name="title"
-                        value="<?= $val('title') ?>"
+                        value="<?= $val("title") ?>"
                         required
                         autocomplete="off"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition
-                               <?= $borderClass('title') ?>"
+                               <?= $borderClass("title") ?>"
                         placeholder="e.g. Introduction to Fractions"
                         aria-describedby="title-error"
                     >
-                    <span id="title-error"><?= $err('title') ?></span>
+                    <span id="title-error"><?= $err("title") ?></span>
                     <p class="mt-1 text-xs text-slate-400">Write a clear, specific title that describes the topic of your demonstration. Include the subject and concept (e.g. "Identifying Nouns  Grade 3 English").</p>
                 </div>
 
@@ -192,22 +198,42 @@ ob_start();
                         name="subject"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 shadow-sm
                                focus:outline-none focus:ring-2 transition bg-white
-                               <?= $borderClass('subject') ?>"
+                               <?= $borderClass("subject") ?>"
                         aria-describedby="subject-error"
                     >
                         <option value="">— Select a subject —</option>
                         <?php
-                        $subjects = ['Mathematics','English','Filipino','Science','Araling Panlipunan','MAPEH','Edukasyon sa Pagpapakatao (EsP)','Mother Tongue','Technology and Livelihood Education (TLE)'];
-                        $currentSubject = $old['subject'] ?? ($demo['subject'] ?? '');
-                        foreach ($subjects as $s):
-                        ?>
-                            <option value="<?= htmlspecialchars($s) ?>" <?= $currentSubject === $s ? 'selected' : '' ?>>
+                        $subjects = [
+                            "Mathematics",
+                            "English",
+                            "Filipino",
+                            "Science",
+                            "Araling Panlipunan",
+                            "MAPEH",
+                            "Edukasyon sa Pagpapakatao (EsP)",
+                            "Mother Tongue",
+                            "Technology and Livelihood Education (TLE)",
+                        ];
+                        $currentSubject =
+                            $old["subject"] ?? ($demo["subject"] ?? "");
+                        foreach ($subjects as $s): ?>
+                            <option value="<?= htmlspecialchars(
+                                $s,
+                            ) ?>" <?= $currentSubject === $s
+    ? "selected"
+    : "" ?>>
                                 <?= htmlspecialchars($s) ?>
                             </option>
-                        <?php endforeach; ?>
-                        <option value="Other" <?= (!in_array($currentSubject, $subjects) && $currentSubject !== '') ? 'selected' : '' ?>>Other</option>
+                        <?php endforeach;
+                        ?>
+                        <option value="Other" <?= !in_array(
+                            $currentSubject,
+                            $subjects,
+                        ) && $currentSubject !== ""
+                            ? "selected"
+                            : "" ?>>Other</option>
                     </select>
-                    <span id="subject-error"><?= $err('subject') ?></span>
+                    <span id="subject-error"><?= $err("subject") ?></span>
                     <p class="mt-1 text-xs text-slate-400">Select the learning area this demo belongs to (e.g. Mathematics, English, Science).</p>
                 </div>
 
@@ -221,21 +247,34 @@ ob_start();
                         name="grade_level"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 shadow-sm
                                focus:outline-none focus:ring-2 transition bg-white
-                               <?= $borderClass('grade_level') ?>"
+                               <?= $borderClass("grade_level") ?>"
                         aria-describedby="grade_level-error"
                     >
                         <option value="">— Select grade level —</option>
                         <?php
-                        $grades = ['Kindergarten','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6'];
-                        $currentGrade = $old['grade_level'] ?? ($demo['grade_level'] ?? '');
-                        foreach ($grades as $g):
-                        ?>
-                            <option value="<?= htmlspecialchars($g) ?>" <?= $currentGrade === $g ? 'selected' : '' ?>>
+                        $grades = [
+                            "Kindergarten",
+                            "Grade 1",
+                            "Grade 2",
+                            "Grade 3",
+                            "Grade 4",
+                            "Grade 5",
+                            "Grade 6",
+                        ];
+                        $currentGrade =
+                            $old["grade_level"] ?? ($demo["grade_level"] ?? "");
+                        foreach ($grades as $g): ?>
+                            <option value="<?= htmlspecialchars(
+                                $g,
+                            ) ?>" <?= $currentGrade === $g ? "selected" : "" ?>>
                                 <?= htmlspecialchars($g) ?>
                             </option>
-                        <?php endforeach; ?>
+                        <?php endforeach;
+                        ?>
                     </select>
-                    <span id="grade_level-error"><?= $err('grade_level') ?></span>
+                    <span id="grade_level-error"><?= $err(
+                        "grade_level",
+                    ) ?></span>
                     <p class="mt-1 text-xs text-slate-400">Choose the grade level of the class you will be teaching this demonstration to.</p>
                 </div>
 
@@ -253,14 +292,24 @@ ob_start();
                     >
                         <option value="">— Select quarter —</option>
                         <?php
-                        $quarters = [1 => '1st Quarter', 2 => '2nd Quarter', 3 => '3rd Quarter', 4 => '4th Quarter'];
-                        $currentQuarter = (string)($old['quarter'] ?? ($demo['quarter'] ?? ''));
-                        foreach ($quarters as $qval => $qlabel):
-                        ?>
-                            <option value="<?= $qval ?>" <?= $currentQuarter === (string)$qval ? 'selected' : '' ?>>
+                        $quarters = [
+                            1 => "1st Quarter",
+                            2 => "2nd Quarter",
+                            3 => "3rd Quarter",
+                            4 => "4th Quarter",
+                        ];
+                        $currentQuarter =
+                            (string) ($old["quarter"] ??
+                                ($demo["quarter"] ?? ""));
+                        foreach ($quarters as $qval => $qlabel): ?>
+                            <option value="<?= $qval ?>" <?= $currentQuarter ===
+(string) $qval
+    ? "selected"
+    : "" ?>>
                                 <?= htmlspecialchars($qlabel) ?>
                             </option>
-                        <?php endforeach; ?>
+                        <?php endforeach;
+                        ?>
                     </select>
                     <p class="mt-1 text-xs text-slate-400">Indicate which quarter of the school year this demo falls under (Q1Q4 per the DepEd school calendar).</p>
                 </div>
@@ -279,13 +328,17 @@ ob_start();
                     >
                         <option value="">— Select week —</option>
                         <?php
-                        $currentWeek = (string)($old['week'] ?? ($demo['week'] ?? ''));
-                        for ($w = 1; $w <= 10; $w++):
-                        ?>
-                            <option value="<?= $w ?>" <?= $currentWeek === (string)$w ? 'selected' : '' ?>>
+                        $currentWeek =
+                            (string) ($old["week"] ?? ($demo["week"] ?? ""));
+                        for ($w = 1; $w <= 10; $w++): ?>
+                            <option value="<?= $w ?>" <?= $currentWeek ===
+(string) $w
+    ? "selected"
+    : "" ?>>
                                 Week <?= $w ?>
                             </option>
-                        <?php endfor; ?>
+                        <?php endfor;
+                        ?>
                     </select>
                     <p class="mt-1 text-xs text-slate-400">Select the specific week within the quarter when this demonstration will be conducted.</p>
                 </div>
@@ -303,14 +356,22 @@ ob_start();
                                border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <?php
-                        $statuses = ['draft' => 'Draft', 'for_review' => 'For Review', 'submitted' => 'Submitted'];
-                        $currentStatus = $old['status'] ?? ($demo['status'] ?? 'draft');
-                        foreach ($statuses as $sval => $slabel):
-                        ?>
-                            <option value="<?= $sval ?>" <?= $currentStatus === $sval ? 'selected' : '' ?>>
+                        $statuses = [
+                            "draft" => "Draft",
+                            "for_review" => "For Review",
+                            "submitted" => "Submitted",
+                        ];
+                        $currentStatus =
+                            $old["status"] ?? ($demo["status"] ?? "draft");
+                        foreach ($statuses as $sval => $slabel): ?>
+                            <option value="<?= $sval ?>" <?= $currentStatus ===
+$sval
+    ? "selected"
+    : "" ?>>
                                 <?= htmlspecialchars($slabel) ?>
                             </option>
-                        <?php endforeach; ?>
+                        <?php endforeach;
+                        ?>
                     </select>
                 </div>
 
@@ -324,21 +385,37 @@ ob_start();
                         name="duration_minutes"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 shadow-sm
                                focus:outline-none focus:ring-2 transition bg-white
-                               <?= $borderClass('duration_minutes') ?>"
+                               <?= $borderClass("duration_minutes") ?>"
                         aria-describedby="duration_minutes-error"
                     >
                         <option value="">— Select duration —</option>
                         <?php
-                        $durations = [20 => '20 minutes', 30 => '30 minutes', 40 => '40 minutes', 45 => '45 minutes', 50 => '50 minutes', 60 => '60 minutes (1 hour)', 90 => '90 minutes (1.5 hours)', 120 => '120 minutes (2 hours)'];
-                        $currentDuration = (string)($old['duration_minutes'] ?? ($demo['duration_minutes'] ?? ''));
-                        foreach ($durations as $durVal => $durLabel):
-                        ?>
-                            <option value="<?= $durVal ?>" <?= $currentDuration === (string)$durVal ? 'selected' : '' ?>>
+                        $durations = [
+                            20 => "20 minutes",
+                            30 => "30 minutes",
+                            40 => "40 minutes",
+                            45 => "45 minutes",
+                            50 => "50 minutes",
+                            60 => "60 minutes (1 hour)",
+                            90 => "90 minutes (1.5 hours)",
+                            120 => "120 minutes (2 hours)",
+                        ];
+                        $currentDuration =
+                            (string) ($old["duration_minutes"] ??
+                                ($demo["duration_minutes"] ?? ""));
+                        foreach ($durations as $durVal => $durLabel): ?>
+                            <option value="<?= $durVal ?>" <?= $currentDuration ===
+(string) $durVal
+    ? "selected"
+    : "" ?>>
                                 <?= htmlspecialchars($durLabel) ?>
                             </option>
-                        <?php endforeach; ?>
+                        <?php endforeach;
+                        ?>
                     </select>
-                    <span id="duration_minutes-error"><?= $err('duration_minutes') ?></span>
+                    <span id="duration_minutes-error"><?= $err(
+                        "duration_minutes",
+                    ) ?></span>
                     <p class="mt-1 text-xs text-slate-400">Enter the total time allotted for this demonstration (e.g. 40 minutes for a standard class period, 60 minutes for a double period).</p>
                 </div>
 
@@ -347,7 +424,7 @@ ob_start();
 
         <!-- ── Section 2: Objectives & Materials ─────────────────────────── -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center justify-between mb-3">
                 <h2 class="text-base font-semibold text-gray-700">Objectives &amp; Materials</h2>
                 <button type="button" id="load-obj-mat-template-btn"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
@@ -371,11 +448,13 @@ ob_start();
                         required
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('learning_objectives') ?>"
+                               <?= $borderClass("learning_objectives") ?>"
                         placeholder="e.g.&#10;1. Identify fractions as parts of a whole.&#10;2. Represent fractions using models and number lines.&#10;3. Compare fractions with the same denominator."
                         aria-describedby="learning_objectives-error"
-                    ><?= $val('learning_objectives') ?></textarea>
-                    <span id="learning_objectives-error"><?= $err('learning_objectives') ?></span>
+                    ><?= $val("learning_objectives") ?></textarea>
+                    <span id="learning_objectives-error"><?= $err(
+                        "learning_objectives",
+                    ) ?></span>
                 </div>
 
                 <!-- Materials Needed -->
@@ -389,11 +468,13 @@ ob_start();
                         rows="3"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('materials_needed') ?>"
+                               <?= $borderClass("materials_needed") ?>"
                         placeholder="e.g.&#10;- Fraction strips / cut-outs&#10;- Number line chart&#10;- Whiteboard and markers&#10;- Activity worksheets"
                         aria-describedby="materials_needed-error"
-                    ><?= $val('materials_needed') ?></textarea>
-                    <span id="materials_needed-error"><?= $err('materials_needed') ?></span>
+                    ><?= $val("materials_needed") ?></textarea>
+                    <span id="materials_needed-error"><?= $err(
+                        "materials_needed",
+                    ) ?></span>
                 </div>
 
             </div>
@@ -425,11 +506,13 @@ ob_start();
                         rows="4"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('introduction') ?>"
+                               <?= $borderClass("introduction") ?>"
                         placeholder="e.g. Show a pizza cut into equal slices. Ask: 'If I eat 1 out of 4 slices, what part of the pizza did I eat?' Lead students to discover the concept of fractions through the familiar context of sharing food."
                         aria-describedby="introduction-error"
-                    ><?= $val('introduction') ?></textarea>
-                    <span id="introduction-error"><?= $err('introduction') ?></span>
+                    ><?= $val("introduction") ?></textarea>
+                    <span id="introduction-error"><?= $err(
+                        "introduction",
+                    ) ?></span>
                 </div>
 
                 <!-- Lesson Proper — dynamic step list (Requirement 3.7) -->
@@ -478,14 +561,16 @@ ob_start();
                                 <div class="step-row flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <!-- Step number badge -->
                                     <span class="step-number-badge flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-xs font-bold mt-1">
-                                        <?= (int) $step['step_number'] ?>
+                                        <?= (int) $step["step_number"] ?>
                                     </span>
 
                                     <!-- Hidden step_number input -->
                                     <input
                                         type="hidden"
                                         name="steps[<?= $idx ?>][step_number]"
-                                        value="<?= (int) $step['step_number'] ?>"
+                                        value="<?= (int) $step[
+                                            "step_number"
+                                        ] ?>"
                                         class="step-number-input"
                                     >
 
@@ -494,15 +579,25 @@ ob_start();
                                         name="steps[<?= $idx ?>][description]"
                                         rows="2"
                                         class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
-                                        placeholder="Describe step <?= (int) $step['step_number'] ?>…"
-                                        aria-label="Step <?= (int) $step['step_number'] ?> description"
-                                    ><?= htmlspecialchars((string) $step['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                                        placeholder="Describe step <?= (int) $step[
+                                            "step_number"
+                                        ] ?>…"
+                                        aria-label="Step <?= (int) $step[
+                                            "step_number"
+                                        ] ?> description"
+                                    ><?= htmlspecialchars(
+                                        (string) $step["description"],
+                                        ENT_QUOTES,
+                                        "UTF-8",
+                                    ) ?></textarea>
 
                                     <!-- Remove button -->
                                     <button
                                         type="button"
                                         class="remove-step-btn flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 mt-1"
-                                        aria-label="Remove step <?= (int) $step['step_number'] ?>">
+                                        aria-label="Remove step <?= (int) $step[
+                                            "step_number"
+                                        ] ?>">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                   d="M6 18L18 6M6 6l12 12" />
@@ -525,11 +620,13 @@ ob_start();
                         rows="3"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('generalization') ?>"
+                               <?= $borderClass("generalization") ?>"
                         placeholder="e.g. Ask: 'What is a fraction?' Guide students to conclude: A fraction represents equal parts of a whole. The bottom number (denominator) tells how many equal parts, and the top number (numerator) tells how many parts we are talking about."
                         aria-describedby="generalization-error"
-                    ><?= $val('generalization') ?></textarea>
-                    <span id="generalization-error"><?= $err('generalization') ?></span>
+                    ><?= $val("generalization") ?></textarea>
+                    <span id="generalization-error"><?= $err(
+                        "generalization",
+                    ) ?></span>
                 </div>
 
                 <!-- Application / Practice Activity -->
@@ -543,11 +640,13 @@ ob_start();
                         rows="3"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('application') ?>"
+                               <?= $borderClass("application") ?>"
                         placeholder="e.g. Group Activity: Give each group a set of fraction cards. Students sort the cards from smallest to largest and paste them on a number line. Each group presents their work to the class."
                         aria-describedby="application-error"
-                    ><?= $val('application') ?></textarea>
-                    <span id="application-error"><?= $err('application') ?></span>
+                    ><?= $val("application") ?></textarea>
+                    <span id="application-error"><?= $err(
+                        "application",
+                    ) ?></span>
                 </div>
 
                 <!-- Assessment / Evaluation -->
@@ -561,11 +660,11 @@ ob_start();
                         rows="3"
                         class="w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm
                                focus:outline-none focus:ring-2 transition resize-y
-                               <?= $borderClass('assessment') ?>"
+                               <?= $borderClass("assessment") ?>"
                         placeholder="e.g. Individual written quiz: Identify and shade the correct fraction in 5 diagrams. Scoring: 2 points each = 10 points total. Mastery level: 8/10."
                         aria-describedby="assessment-error"
-                    ><?= $val('assessment') ?></textarea>
-                    <span id="assessment-error"><?= $err('assessment') ?></span>
+                    ><?= $val("assessment") ?></textarea>
+                    <span id="assessment-error"><?= $err("assessment") ?></span>
                 </div>
 
             </div>
@@ -585,7 +684,7 @@ ob_start();
 
         <!-- ── Form actions ───────────────────────────────────────────────── -->
         <div class="flex flex-col sm:flex-row items-center justify-end gap-3">
-            <a href="<?= url('/demos') ?>"
+            <a href="<?= url("/demos") ?>"
                class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                 Cancel
             </a>
@@ -596,7 +695,7 @@ ob_start();
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M5 13l4 4L19 7" />
                 </svg>
-                <?= $isEdit ? 'Save Changes' : 'Create Demo' ?>
+                <?= $isEdit ? "Save Changes" : "Create Demo" ?>
             </button>
         </div>
 
@@ -905,43 +1004,104 @@ ob_start();
         <div class="p-6 space-y-3">
             <?php
             $objMatTemplates = [
-                ['key'=>'math-om',    'color'=>'blue',   'label'=>'M',  'title'=>'Mathematics — Fractions',
-                 'obj'=>"1. Identify fractions as equal parts of a whole with denominators 2, 3, 4, 5, 6, 8, and 10.\n2. Represent fractions using models, fraction strips, and number lines.\n3. Compare fractions with the same denominator using the symbols <, >, and =.",
-                 'mat'=>"- Fraction strips and cut-outs (1 set per group)\n- Number line chart (0 to 1)\n- Colored chalk / whiteboard markers\n- Activity worksheets\n- Flashcards with fraction symbols"],
-                ['key'=>'english-om', 'color'=>'green',  'label'=>'E',  'title'=>'English — Reading Comprehension',
-                 'obj'=>"1. Identify the characters, setting, problem, and solution in a story.\n2. Infer the meaning of unfamiliar words using context clues.\n3. Retell the story in sequence using key details from the text.",
-                 'mat'=>"- Short story text (printed copies, 1 per student)\n- Graphic organizer worksheet (story map)\n- Vocabulary cards\n- Whiteboard and markers\n- Picture cards related to the story"],
-                ['key'=>'filipino-om','color'=>'yellow', 'label'=>'F',  'title'=>'Filipino — Pagbabasa',
-                 'obj'=>"1. Natutukoy ang mga tauhan, tagpuan, suliranin, at solusyon ng kwento.\n2. Naipapaliwanag ang kahulugan ng mga salita gamit ang konteksto.\n3. Naipapahayag ang aral na natutuhan mula sa kwento sa sariling salita.",
-                 'mat'=>"- Kopya ng maikling kwento (1 bawat mag-aaral)\n- Graphic organizer (tauhan, tagpuan, suliranin, solusyon)\n- Mga larawan na may kaugnayan sa kwento\n- Pisara at tisa / whiteboard markers\n- Flashcard ng mga salita"],
-                ['key'=>'science-om', 'color'=>'teal',   'label'=>'S',  'title'=>'Science — Living Things',
-                 'obj'=>"1. Classify objects as living or non-living based on their characteristics.\n2. Describe the basic needs of living things (food, water, air, shelter).\n3. Compare the characteristics of plants and animals as living things.",
-                 'mat'=>"- Small potted plant and a rock (for demonstration)\n- Picture cards of living and non-living things (10 cards per group)\n- Observation chart / worksheet\n- Magnifying glass (optional)\n- Whiteboard and markers"],
-                ['key'=>'ap-om',      'color'=>'orange', 'label'=>'AP', 'title'=>'Araling Panlipunan — Komunidad',
-                 'obj'=>"1. Natutukoy ang mga uri ng komunidad (lungsod, bayan, baryo) at ang kanilang katangian.\n2. Nailarawan ang mga pasilidad at serbisyong makikita sa bawat uri ng komunidad.\n3. Naipapakita ang pagpapahalaga sa sariling komunidad sa pamamagitan ng mga gawain.",
-                 'mat'=>"- Mapa ng komunidad (1 bawat pangkat)\n- Mga larawan ng lungsod, bayan, at baryo\n- Graphic organizer worksheet\n- Pisara at tisa / whiteboard markers\n- Mga larawan ng pasilidad sa komunidad"],
-                ['key'=>'mapeh-om',   'color'=>'pink',   'label'=>'MP', 'title'=>'MAPEH — Music',
-                 'obj'=>"1. Identify the elements of music: melody, rhythm, and dynamics in a given song.\n2. Perform the song with correct pitch, rhythm, and appropriate dynamics.\n3. Appreciate the cultural significance of Filipino folk songs.",
-                 'mat'=>"- Audio recording of a Filipino folk song\n- Song lyrics (printed, 1 per student)\n- Simple percussion instruments (tambourine, claves, or improvised)\n- Musical notation chart\n- Whiteboard and markers"],
-                ['key'=>'esp-om',     'color'=>'indigo', 'label'=>'EP', 'title'=>'EsP — Pagpapahalaga',
-                 'obj'=>"1. Natutukoy ang kahulugan at kahalagahan ng pagpapahalaga na tatalakayin.\n2. Naipapakita ang pagpapahalaga sa pamamagitan ng mga kongkretong halimbawa sa paaralan at tahanan.\n3. Naipapahayag ang personal na pangako na isasabuhay ang pagpapahalaga sa araw-araw na buhay.",
-                 'mat'=>"- Mga sitwasyon cards (5 sitwasyon)\n- Graphic organizer worksheet\n- Mga larawan na nagpapakita ng mabuting pagpapahalaga\n- Pisara at tisa / whiteboard markers\n- Pangako card (1 bawat mag-aaral)"],
+                [
+                    "key" => "math-om",
+                    "color" => "blue",
+                    "label" => "M",
+                    "title" => "Mathematics — Fractions",
+                    "obj" =>
+                        "1. Identify fractions as equal parts of a whole with denominators 2, 3, 4, 5, 6, 8, and 10.\n2. Represent fractions using models, fraction strips, and number lines.\n3. Compare fractions with the same denominator using the symbols <, >, and =.",
+                    "mat" =>
+                        "- Fraction strips and cut-outs (1 set per group)\n- Number line chart (0 to 1)\n- Colored chalk / whiteboard markers\n- Activity worksheets\n- Flashcards with fraction symbols",
+                ],
+                [
+                    "key" => "english-om",
+                    "color" => "green",
+                    "label" => "E",
+                    "title" => "English — Reading Comprehension",
+                    "obj" =>
+                        "1. Identify the characters, setting, problem, and solution in a story.\n2. Infer the meaning of unfamiliar words using context clues.\n3. Retell the story in sequence using key details from the text.",
+                    "mat" =>
+                        "- Short story text (printed copies, 1 per student)\n- Graphic organizer worksheet (story map)\n- Vocabulary cards\n- Whiteboard and markers\n- Picture cards related to the story",
+                ],
+                [
+                    "key" => "filipino-om",
+                    "color" => "yellow",
+                    "label" => "F",
+                    "title" => "Filipino — Pagbabasa",
+                    "obj" =>
+                        "1. Natutukoy ang mga tauhan, tagpuan, suliranin, at solusyon ng kwento.\n2. Naipapaliwanag ang kahulugan ng mga salita gamit ang konteksto.\n3. Naipapahayag ang aral na natutuhan mula sa kwento sa sariling salita.",
+                    "mat" =>
+                        "- Kopya ng maikling kwento (1 bawat mag-aaral)\n- Graphic organizer (tauhan, tagpuan, suliranin, solusyon)\n- Mga larawan na may kaugnayan sa kwento\n- Pisara at tisa / whiteboard markers\n- Flashcard ng mga salita",
+                ],
+                [
+                    "key" => "science-om",
+                    "color" => "teal",
+                    "label" => "S",
+                    "title" => "Science — Living Things",
+                    "obj" =>
+                        "1. Classify objects as living or non-living based on their characteristics.\n2. Describe the basic needs of living things (food, water, air, shelter).\n3. Compare the characteristics of plants and animals as living things.",
+                    "mat" =>
+                        "- Small potted plant and a rock (for demonstration)\n- Picture cards of living and non-living things (10 cards per group)\n- Observation chart / worksheet\n- Magnifying glass (optional)\n- Whiteboard and markers",
+                ],
+                [
+                    "key" => "ap-om",
+                    "color" => "orange",
+                    "label" => "AP",
+                    "title" => "Araling Panlipunan — Komunidad",
+                    "obj" =>
+                        "1. Natutukoy ang mga uri ng komunidad (lungsod, bayan, baryo) at ang kanilang katangian.\n2. Nailarawan ang mga pasilidad at serbisyong makikita sa bawat uri ng komunidad.\n3. Naipapakita ang pagpapahalaga sa sariling komunidad sa pamamagitan ng mga gawain.",
+                    "mat" =>
+                        "- Mapa ng komunidad (1 bawat pangkat)\n- Mga larawan ng lungsod, bayan, at baryo\n- Graphic organizer worksheet\n- Pisara at tisa / whiteboard markers\n- Mga larawan ng pasilidad sa komunidad",
+                ],
+                [
+                    "key" => "mapeh-om",
+                    "color" => "pink",
+                    "label" => "MP",
+                    "title" => "MAPEH — Music",
+                    "obj" =>
+                        "1. Identify the elements of music: melody, rhythm, and dynamics in a given song.\n2. Perform the song with correct pitch, rhythm, and appropriate dynamics.\n3. Appreciate the cultural significance of Filipino folk songs.",
+                    "mat" =>
+                        "- Audio recording of a Filipino folk song\n- Song lyrics (printed, 1 per student)\n- Simple percussion instruments (tambourine, claves, or improvised)\n- Musical notation chart\n- Whiteboard and markers",
+                ],
+                [
+                    "key" => "esp-om",
+                    "color" => "indigo",
+                    "label" => "EP",
+                    "title" => "EsP — Pagpapahalaga",
+                    "obj" =>
+                        "1. Natutukoy ang kahulugan at kahalagahan ng pagpapahalaga na tatalakayin.\n2. Naipapakita ang pagpapahalaga sa pamamagitan ng mga kongkretong halimbawa sa paaralan at tahanan.\n3. Naipapahayag ang personal na pangako na isasabuhay ang pagpapahalaga sa araw-araw na buhay.",
+                    "mat" =>
+                        "- Mga sitwasyon cards (5 sitwasyon)\n- Graphic organizer worksheet\n- Mga larawan na nagpapakita ng mabuting pagpapahalaga\n- Pisara at tisa / whiteboard markers\n- Pangako card (1 bawat mag-aaral)",
+                ],
             ];
-            foreach ($objMatTemplates as $t):
-            ?>
+            foreach ($objMatTemplates as $t): ?>
             <div class="border border-gray-200 rounded-xl overflow-hidden">
                 <button type="button"
-                    data-obj="<?= htmlspecialchars($t['obj'], ENT_QUOTES) ?>"
-                    data-mat="<?= htmlspecialchars($t['mat'], ENT_QUOTES) ?>"
-                    class="obj-mat-tpl-btn w-full flex items-center justify-between px-4 py-3 bg-<?= $t['color'] ?>-50 hover:bg-<?= $t['color'] ?>-100 transition-colors text-left">
+                    data-obj="<?= htmlspecialchars($t["obj"], ENT_QUOTES) ?>"
+                    data-mat="<?= htmlspecialchars($t["mat"], ENT_QUOTES) ?>"
+                    class="obj-mat-tpl-btn w-full flex items-center justify-between px-4 py-3 bg-<?= $t[
+                        "color"
+                    ] ?>-50 hover:bg-<?= $t[
+    "color"
+] ?>-100 transition-colors text-left">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-<?= $t['color'] ?>-600 text-white text-xs font-bold"><?= $t['label'] ?></span>
-                        <p class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($t['title']) ?></p>
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-<?= $t[
+                            "color"
+                        ] ?>-600 text-white text-xs font-bold"><?= $t[
+    "label"
+] ?></span>
+                        <p class="text-sm font-semibold text-gray-800"><?= htmlspecialchars(
+                            $t["title"],
+                        ) ?></p>
                     </div>
-                    <svg class="w-4 h-4 text-<?= $t['color'] ?>-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <svg class="w-4 h-4 text-<?= $t[
+                        "color"
+                    ] ?>-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
-            <?php endforeach; ?>
+            <?php endforeach;
+            ?>
         </div>
     </div>
 </div>
@@ -1077,10 +1237,38 @@ ob_start();
         });
     }
 
-    // Auto-load template from URL ?demo_template=ID
+    // Auto-load template from URL ?demo_template=ID or ?builtin_demo=KEY
     (function autoLoad() {
-        var params = new URLSearchParams(window.location.search);
-        var tplId  = params.get('demo_template');
+        var params     = new URLSearchParams(window.location.search);
+        var tplId      = params.get('demo_template');
+        var builtinKey = params.get('builtin_demo');
+
+        if (builtinKey && typeof demoTemplates !== 'undefined' && demoTemplates[builtinKey]) {
+            var tpl = demoTemplates[builtinKey];
+            function setFld(id,val){var el=document.getElementById(id);if(el&&val)el.value=val;}
+            setFld('introduction',tpl.intro);
+            setFld('generalization',tpl.generalization);
+            setFld('application',tpl.application);
+            setFld('assessment',tpl.assessment);
+            if(tpl.steps){
+                var c=document.getElementById('steps-container');
+                var h=document.getElementById('steps-empty-hint');
+                if(c){
+                    c.querySelectorAll('.step-row').forEach(function(r){r.remove();});
+                    if(h)h.style.display='none';
+                    tpl.steps.forEach(function(s,idx){
+                        var num=idx+1;var row=document.createElement('div');
+                        row.className='step-row flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200';
+                        row.innerHTML='<span class=step-number-badge>'+num+'</span><input type=hidden class=step-number-input name=steps['+idx+'][step_number] value='+num+'><textarea name=steps['+idx+'][description] rows=2 class=flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm></textarea><button type=button class=remove-step-btn>X</button>';
+                        c.appendChild(row);
+                        var ta=row.querySelector('textarea');if(ta)ta.value=s.desc;
+                    });
+                }
+            }
+            showToast('Built-in template loaded!');
+            return;
+        }
+
         if (!tplId) return;
 
         fetch('<?= url('/demo-templates/') ?>' + encodeURIComponent(tplId) + '/apply')
@@ -1625,4 +1813,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-require __DIR__ . '/../layouts/main.php';
+require __DIR__ . "/../layouts/main.php";
+
