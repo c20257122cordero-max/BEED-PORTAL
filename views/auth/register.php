@@ -5,11 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account — BEED Student Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        .fade-up { animation: fadeInUp 0.7s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .float-shape { animation: float 6s ease-in-out infinite; }
+        .float-shape-2 { animation: float 8s ease-in-out infinite reverse; }
+        .btn-glow:hover { box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+    </style>
 </head>
 <body class="min-h-screen bg-slate-50 flex">
 
     <!-- Left panel -->
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-700 flex-col justify-between p-12 text-white">
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-700 flex-col justify-between p-12 text-white relative overflow-hidden">
+        <!-- Floating shapes -->
+        <div class="float-shape absolute top-20 right-12 w-28 h-28 bg-white/10 rounded-full pointer-events-none"></div>
+        <div class="float-shape-2 absolute bottom-24 left-10 w-16 h-16 bg-white/10 rounded-full pointer-events-none"></div>
+        <div class="float-shape absolute top-1/3 right-6 w-10 h-10 bg-white/10 rounded-xl pointer-events-none"></div>
         <div>
             <div class="flex items-center gap-3 mb-12">
                 <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -39,7 +54,7 @@
                 <span class="text-lg font-bold text-gray-800">BEED Portal</span>
             </div>
 
-            <div class="mb-8">
+            <div class="mb-8 fade-up">
                 <h2 class="text-2xl font-bold text-gray-900">Create your account</h2>
                 <p class="mt-1 text-sm text-gray-500">Free for all BEED students</p>
             </div>
@@ -51,7 +66,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="<?= url('/register') ?>" novalidate class="space-y-5">
+            <form method="POST" action="<?= url('/register') ?>" novalidate class="space-y-5 fade-up delay-2">
                 <div>
                     <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                     <input type="text" id="full_name" name="full_name"
@@ -94,7 +109,7 @@
                     <?php endif; ?>
                 </div>
                 <button type="submit"
-                    class="w-full rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold text-sm py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    class="w-full rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold text-sm py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 btn-glow transition-all duration-200">
                     Create Account
                 </button>
             </form>

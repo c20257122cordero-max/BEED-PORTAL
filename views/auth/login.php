@@ -5,11 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — BEED Student Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInLeft { from { opacity:0; transform:translateX(-24px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        .fade-up { animation: fadeInUp 0.7s ease both; }
+        .fade-left { animation: fadeInLeft 0.7s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .float-shape { animation: float 6s ease-in-out infinite; }
+        .float-shape-2 { animation: float 8s ease-in-out infinite reverse; }
+        input:focus { transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+        .btn-glow:hover { box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+    </style>
 </head>
 <body class="min-h-screen bg-slate-50 flex">
 
     <!-- Left panel — branding (hidden on mobile) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-700 flex-col justify-between p-12 text-white">
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-700 flex-col justify-between p-12 text-white relative overflow-hidden">
+        <!-- Floating decorative shapes -->
+        <div class="float-shape absolute top-16 right-16 w-32 h-32 bg-white/10 rounded-full pointer-events-none"></div>
+        <div class="float-shape-2 absolute bottom-32 left-8 w-20 h-20 bg-white/10 rounded-full pointer-events-none"></div>
+        <div class="float-shape absolute top-1/2 right-8 w-12 h-12 bg-white/10 rounded-xl pointer-events-none"></div>
         <div>
             <div class="flex items-center gap-3 mb-12">
                 <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -49,7 +70,7 @@
                 <span class="text-lg font-bold text-gray-800">BEED Portal</span>
             </div>
 
-            <div class="mb-8">
+            <div class="mb-8 fade-up">
                 <h2 class="text-2xl font-bold text-gray-900">Welcome back</h2>
                 <p class="mt-1 text-sm text-gray-500">Sign in to your student account</p>
             </div>
@@ -61,7 +82,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="<?= url('/login') ?>" novalidate class="space-y-5">
+            <form method="POST" action="<?= url('/login') ?>" novalidate class="space-y-5 fade-up delay-2">
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
                     <input type="email" id="email" name="email"
@@ -78,7 +99,7 @@
                         placeholder="••••••••">
                 </div>
                 <button type="submit"
-                    class="w-full rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold text-sm py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    class="w-full rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold text-sm py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 btn-glow transition-all duration-200">
                     Sign In
                 </button>
             </form>

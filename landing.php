@@ -226,31 +226,7 @@
   </div>
 </section>
 
-<!-- ===================================================
-     FEATURES STRIP
-=================================================== -->
-<div class="bg-blue-800 border-t border-blue-700">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="flex flex-wrap justify-center gap-x-10 gap-y-2 text-sm font-semibold text-blue-100">
-      <span class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Free to Use
-      </span>
-      <span class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        DepEd Format
-      </span>
-      <span class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Print-Ready
-      </span>
-      <span class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Mobile Friendly
-      </span>
-    </div>
-  </div>
-</div>
+
 
 <!-- ===================================================
      SERVICES SECTION
@@ -787,6 +763,98 @@
   window.addEventListener('resize', function () {
     if (window.innerWidth >= 768) closeMenu();
   });
+</script>
+
+<!-- ===== SCROLL ANIMATION + EFFECTS SCRIPT ===== -->
+<script>
+  // Intersection Observer for scroll-reveal animations
+  (function() {
+    var style = document.createElement('style');
+    style.textContent = `
+      .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s ease, transform 0.65s ease; }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
+      .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.65s ease, transform 0.65s ease; }
+      .reveal-left.visible { opacity: 1; transform: translateX(0); }
+      .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.65s ease, transform 0.65s ease; }
+      .reveal-right.visible { opacity: 1; transform: translateX(0); }
+      .reveal-scale { opacity: 0; transform: scale(0.92); transition: opacity 0.6s ease, transform 0.6s ease; }
+      .reveal-scale.visible { opacity: 1; transform: scale(1); }
+      .stagger-1 { transition-delay: 0.1s; }
+      .stagger-2 { transition-delay: 0.2s; }
+      .stagger-3 { transition-delay: 0.3s; }
+      .stagger-4 { transition-delay: 0.4s; }
+      /* Nav scroll effect */
+      nav.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+      /* Floating animation for hero shapes */
+      @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+      .float-anim { animation: float 5s ease-in-out infinite; }
+      .float-anim-slow { animation: float 7s ease-in-out infinite; }
+      /* Pulse on CTA button */
+      @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(99,102,241,0.4)} 70%{box-shadow:0 0 0 14px rgba(99,102,241,0)} 100%{box-shadow:0 0 0 0 rgba(99,102,241,0)} }
+      .pulse-btn { animation: pulse-ring 2.5s infinite; }
+      /* Card hover lift */
+      .card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+      .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.10); }
+    `;
+    document.head.appendChild(style);
+
+    // Add reveal classes to sections
+    var selectors = [
+      '#services .grid > *',
+      '#how-it-works .grid > *',
+      '#testimonials .grid > *',
+      '#events .grid > *',
+      '#contact > div > div > *',
+      'section h2',
+      'section > div > p'
+    ];
+
+    selectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el, i) {
+        el.classList.add('reveal');
+        if (i % 3 === 1) el.classList.add('stagger-1');
+        if (i % 3 === 2) el.classList.add('stagger-2');
+      });
+    });
+
+    // Add card-hover to service/event/testimonial cards
+    document.querySelectorAll('#services .grid > *, #events .grid > *, #testimonials .grid > *').forEach(function(el) {
+      el.classList.add('card-hover');
+    });
+
+    // Intersection Observer
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+      observer.observe(el);
+    });
+
+    // Nav shadow on scroll
+    var nav = document.querySelector('nav');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 20) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Add float animation to hero decorative shapes
+    document.querySelectorAll('.hero-shape').forEach(function(el, i) {
+      el.classList.add(i % 2 === 0 ? 'float-anim' : 'float-anim-slow');
+    });
+
+    // Add pulse to primary CTA button
+    var ctaBtn = document.querySelector('a[href*="login"].pulse-target');
+    if (ctaBtn) ctaBtn.classList.add('pulse-btn');
+  })();
 </script>
 
 </body>
