@@ -103,6 +103,9 @@
                 Already have an account?
                 <a href="<?= url('/login') ?>" class="text-blue-700 hover:text-blue-800 font-semibold">Sign in →</a>
             </p>
+            <p class="mt-3 text-center">
+                <a href="/DEMO%20MAKER%20AND%20LESSON%20PLAN%20MAKER/landing.php" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Home</a>
+            </p>
         </div>
     </div>
 
